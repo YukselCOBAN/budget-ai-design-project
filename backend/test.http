@@ -1,0 +1,25 @@
+### 1. Sağlık Kontrolü Testi
+GET http://localhost:5000/api/health
+
+###
+
+### 2. Kategorileri Listeleme Testi
+GET http://localhost:5000/api/categories
+
+###
+
+### 3. Harcamaları Listeleme Testi
+GET http://localhost:5000/api/transactions
+
+###
+
+### 4. Yeni Harcama Ekleme Testi (POST)
+POST http://localhost:5000/api/transactions
+Content-Type: application/json
+
+{
+  "title": "Migros Market Alışverişi",
+  "amount": 450.50,
+  "category_id": 1,
+  "transaction_date": "2026-10-23"
+}
