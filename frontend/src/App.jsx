@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Plus,
-  ShoppingCart,
-  FileText,
-  Car,
+  ShoppingBag,
+  Receipt,
+  Bus,
   Film,
-  Tv,
+  Repeat,
   MoreHorizontal,
 } from "lucide-react";
 
@@ -19,7 +19,7 @@ export default function App() {
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
 
-  // 1. Verileri Backend REST API'den Çekme
+  // Verileri REST API'den Çekme
   const fetchData = async () => {
     try {
       const catRes = await axios.get(`${API_URL}/categories`);
@@ -38,7 +38,7 @@ export default function App() {
     fetchData();
   }, []);
 
-  // 2. Form Üzerinden Yeni Harcama Ekleme (POST)
+  // Yeni Harcama Kaydetme
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !amount || !categoryId) return;
@@ -50,7 +50,6 @@ export default function App() {
         category_id: parseInt(categoryId),
       });
 
-      // Formu temizle ve listeyi veritabanından güncelle
       setTitle("");
       setAmount("");
       fetchData();
@@ -62,142 +61,217 @@ export default function App() {
   return (
     <div
       style={{
-        maxWidth: "800px",
-        margin: "40px auto",
-        fontFamily: "sans-serif",
-        padding: "0 20px",
+        minHeight: "100vh",
+        backgroundColor: "#f8fafc",
+        padding: "40px 20px",
+        fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
+        color: "#0f172a",
       }}
     >
-      <h1 style={{ color: "#1e293b" }}>
-        Yapay Zekâ Destekli Bütçe ve Gider Takibi
-      </h1>
-
-      {/* Harcama Ekleme Formu */}
-      <div
-        style={{
-          background: "#f8fafc",
-          padding: "20px",
-          borderRadius: "8px",
-          border: "1px solid #e2e8f0",
-          marginBottom: "30px",
-        }}
-      >
-        <h3 style={{ marginTop: 0, color: "#334155" }}>Yeni Harcama Ekle</h3>
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+      <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+        {/* Başlık */}
+        <h1
+          style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            textAlign: "center",
+            marginBottom: "30px",
+            color: "#1e293b",
+          }}
         >
-          <input
-            type="text"
-            placeholder="Harcama Başlığı (örn: Trendyol, Market)"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            style={{
-              flex: 1,
-              minWidth: "200px",
-              padding: "10px",
-              borderRadius: "6px",
-              border: "1px solid #cbd5e1",
-            }}
-            required
-          />
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Tutar (TL)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            style={{
-              width: "130px",
-              padding: "10px",
-              borderRadius: "6px",
-              border: "1px solid #cbd5e1",
-            }}
-            required
-          />
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            style={{
-              padding: "10px",
-              borderRadius: "6px",
-              border: "1px solid #cbd5e1",
-              background: "#fff",
-            }}
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            style={{
-              background: "#2563eb",
-              color: "#fff",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "6px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              fontWeight: "bold",
-            }}
-          >
-            <Plus size={18} /> Ekle
-          </button>
-        </form>
-      </div>
+          Yapay Zekâ Destekli Bütçe ve Gider Takibi
+        </h1>
 
-      {/* Harcama Listesi */}
-      <h3 style={{ color: "#334155" }}>Son Harcamalar</h3>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {transactions.length === 0 ? (
-          <p style={{ color: "#64748b" }}>
-            Henüz kayıtlı bir harcama bulunmuyor.
-          </p>
-        ) : (
-          transactions.map((t) => (
-            <div
-              key={t.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "15px 20px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                background: "#fff",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-              }}
-            >
-              <div>
-                <strong style={{ fontSize: "16px", color: "#0f172a" }}>
-                  {t.title}
-                </strong>
-                <br />
-                <small style={{ color: "#64748b" }}>
-                  {t.category_name || "Kategorisiz"}
-                </small>
-              </div>
-              <div
+        {/* Harcama Ekleme Kartı */}
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            padding: "24px",
+            boxShadow:
+              "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+            marginBottom: "32px",
+            border: "1px solid #e2e8f0",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "16px",
+              fontWeight: "600",
+              marginBottom: "16px",
+              color: "#334155",
+            }}
+          >
+            Yeni Harcama Ekle
+          </h2>
+
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <input
+                type="text"
+                placeholder="Harcama Başlığı (örn: Migros, Trendyol)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  color: "#dc2626",
+                  flex: "2",
+                  minWidth: "200px",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "14px",
+                  outline: "none",
+                  backgroundColor: "#fff",
+                  color: "#0f172a",
+                }}
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Tutar (TL)"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                style={{
+                  flex: "1",
+                  minWidth: "110px",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "14px",
+                  outline: "none",
+                  backgroundColor: "#fff",
+                  color: "#0f172a",
+                }}
+                required
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "12px" }}>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                style={{
+                  flex: "1",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "14px",
+                  backgroundColor: "#fff",
+                  color: "#0f172a",
+                  cursor: "pointer",
                 }}
               >
-                -
-                {parseFloat(t.amount).toLocaleString("tr-TR", {
-                  minimumFractionDigits: 2,
-                })}{" "}
-                TL
-              </div>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "10px 24px",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "background-color 0.2s",
+                }}
+              >
+                <Plus size={18} /> Ekle
+              </button>
             </div>
-          ))
-        )}
+          </form>
+        </div>
+
+        {/* Harcama Listesi */}
+        <h2
+          style={{
+            fontSize: "18px",
+            fontWeight: "600",
+            marginBottom: "16px",
+            color: "#334155",
+          }}
+        >
+          Son Harcamalar
+        </h2>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {transactions.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "30px",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+                color: "#64748b",
+              }}
+            >
+              Henüz kayıtlı bir harcama bulunmuyor.
+            </div>
+          ) : (
+            transactions.map((t) => (
+              <div
+                key={t.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "16px 20px",
+                  backgroundColor: "#ffffff",
+                  borderRadius: "10px",
+                  border: "1px solid #e2e8f0",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: "600",
+                      fontSize: "15px",
+                      color: "#0f172a",
+                    }}
+                  >
+                    {t.title}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "#64748b",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {t.category_name || "Kategorisiz"}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontWeight: "700",
+                    fontSize: "16px",
+                    color: "#dc2626",
+                  }}
+                >
+                  -
+                  {parseFloat(t.amount).toLocaleString("tr-TR", {
+                    minimumFractionDigits: 2,
+                  })}{" "}
+                  TL
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
