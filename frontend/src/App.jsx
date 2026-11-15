@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Plus,
-  ShoppingBag,
-  Receipt,
-  Bus,
-  Film,
-  Repeat,
-  MoreHorizontal,
-} from "lucide-react";
+import { Plus, Sparkles, Loader2, Trash2 } from "lucide-react";
 
 const API_URL = "http://localhost:5000/api";
 
@@ -18,6 +10,10 @@ export default function App() {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
+
+  // Yapay Zekâ Kategori Tahmini Durumları
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [isPredicting, setIsPredicting] = useState(false);
 
   // Verileri REST API'den Çekme
   const fetchData = async () => {
@@ -38,6 +34,34 @@ export default function App() {
     fetchData();
   }, []);
 
+  // Harcama başlığı yazıldıkça AI servisinden otomatik kategori önerisi alma
+  useEffect(() => {
+    if (title.trim().length < 3) {
+      setAiSuggestion(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsPredicting(true);
+        const res = await axios.post(`${API_URL}/predict-category`, {
+          title: title.trim(),
+        });
+        setAiSuggestion(res.data);
+
+        if (res.data.category_id) {
+          setCategoryId(res.data.category_id);
+        }
+      } catch (error) {
+        console.error("AI kategori tahmin hatası:", error);
+      } finally {
+        setIsPredicting(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [title]);
+
   // Yeni Harcama Kaydetme
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,9 +76,20 @@ export default function App() {
 
       setTitle("");
       setAmount("");
+      setAiSuggestion(null);
       fetchData();
     } catch (error) {
       console.error("Harcama ekleme hatası:", error);
+    }
+  };
+
+  // Harcama Kaydı Silme
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/transactions/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error("Harcama silme hatası:", error);
     }
   };
 
@@ -148,6 +183,49 @@ export default function App() {
                 required
               />
             </div>
+
+            {/* Yapay Zekâ Tahmin Durumu / Öneri Rozeti */}
+            {isPredicting && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "13px",
+                  color: "#64748b",
+                  padding: "6px 10px",
+                  backgroundColor: "#f1f5f9",
+                  borderRadius: "6px",
+                }}
+              >
+                <Loader2 size={14} />
+                <span>Yapay zekâ kategoriyi analiz ediyor...</span>
+              </div>
+            )}
+
+            {!isPredicting && aiSuggestion && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "13px",
+                  color: "#1d4ed8",
+                  backgroundColor: "#eff6ff",
+                  border: "1px solid #bfdbfe",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Sparkles size={15} />
+                <span>
+                  Yapay Zekâ Önerisi:{" "}
+                  <strong>{aiSuggestion.predicted_category}</strong>
+                  {aiSuggestion.confidence != null &&
+                    ` (Güven: %${(aiSuggestion.confidence * 100).toFixed(1)})`}
+                </span>
+              </div>
+            )}
 
             <div style={{ display: "flex", gap: "12px" }}>
               <select
@@ -256,17 +334,36 @@ export default function App() {
                   </div>
                 </div>
                 <div
-                  style={{
-                    fontWeight: "700",
-                    fontSize: "16px",
-                    color: "#dc2626",
-                  }}
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
                 >
-                  -
-                  {parseFloat(t.amount).toLocaleString("tr-TR", {
-                    minimumFractionDigits: 2,
-                  })}{" "}
-                  TL
+                  <div
+                    style={{
+                      fontWeight: "700",
+                      fontSize: "16px",
+                      color: "#dc2626",
+                    }}
+                  >
+                    -
+                    {parseFloat(t.amount).toLocaleString("tr-TR", {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    TL
+                  </div>
+                  <button
+                    onClick={() => handleDelete(t.id)}
+                    title="Harcamayı Sil"
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                      padding: "4px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
             ))

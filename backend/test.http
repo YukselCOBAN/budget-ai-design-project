@@ -23,3 +23,11 @@ Content-Type: application/json
   "category_id": 1,
   "transaction_date": "2026-10-23"
 }
+
+### 5. AI Kategori Tahmini Testi
+POST http://localhost:5000/api/predict-category
+Content-Type: application/json
+
+{
+  "title": "Migros haftalık alışveriş"
+}
